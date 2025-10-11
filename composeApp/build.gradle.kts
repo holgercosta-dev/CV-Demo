@@ -34,16 +34,18 @@ kotlin {
         binaries.executable()
     }
     
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        binaries.executable()
-    }
+//    @OptIn(ExperimentalWasmDsl::class)
+//    wasmJs {
+//        browser()
+//        binaries.executable()
+//    }
     
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -54,6 +56,10 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.koin.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -61,7 +67,24 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.ktor.client.okhttp)
         }
+        val iosMain by creating {
+            dependsOn(commonMain.get())
+            // Link iosX64, iosArm64, and iosSimulatorArm64 to this source set
+            iosX64Main.get().dependsOn(this)
+            iosArm64Main.get().dependsOn(this)
+            iosSimulatorArm64Main.get().dependsOn(this)
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
+        }
+        jsMain.dependencies {
+            implementation(libs.ktor.client.js)
+        }
+//        wasmJsMain.dependencies {
+//            implementation(libs.ktor.client.js)
+//        }
     }
 }
 
@@ -93,6 +116,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.koin.core)
     debugImplementation(compose.uiTooling)
 }
 
@@ -106,4 +130,9 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+repositories {
+    google()
+    mavenCentral()
 }
