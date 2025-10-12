@@ -13,42 +13,35 @@ import io.ktor.http.headersOf
 import io.ktor.util.InternalAPI
 import io.ktor.util.date.GMTDate
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.core.toByteArray
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 class MockEngine(
-    override val config: HttpClientEngineConfig = HttpClientEngineConfig()
+    override val config: HttpClientEngineConfig = HttpClientEngineConfig(),
+    private val mockDataHandler: MockDataHandler,
 ) : HttpClientEngineBase("Mock_Engine") {
     @InternalAPI
     override suspend fun execute(data: HttpRequestData): HttpResponseData {
-        val route = data.url.encodedPath
-        println(route)
-        val jsonString = Json.encodeToString(SomeResponse(id = "123"))
-        val byteArray = jsonString.toByteArray()
         val callContext = callContext()
-        val responseData = withContext(callContext) {
-            when(route) {
-                else -> HttpResponseData(
-                    statusCode = HttpStatusCode.OK,
-                    requestTime = GMTDate(),
-                    headers = headersOf(
-                        HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString()),
-                        HttpHeaders.ContentLength to listOf(byteArray.size.toString())
-                    ),
-                    version = HttpProtocolVersion.HTTP_1_1,
-                    body = ByteReadChannel(byteArray),
-                    callContext = callContext,
-                )
-
+        val route = Route.fromPath(data.url.encodedPath)
+        val responseByteArray: ByteArray = when (route) {
+            Route.GET_CV_DATA -> {
+                mockDataHandler.getCVData
             }
+
+            Route.GET_USER_PROFILE -> TODO()
+            Route.UNKNOWN -> TODO()
+            else -> TODO()
         }
 
-        return responseData
+        return HttpResponseData(
+            statusCode = HttpStatusCode.OK,
+            requestTime = GMTDate(),
+            headers = headersOf(
+                HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString()),
+                HttpHeaders.ContentLength to listOf(responseByteArray.size.toString())
+            ),
+            version = HttpProtocolVersion.HTTP_1_1,
+            body = ByteReadChannel(responseByteArray),
+            callContext = callContext,
+        )
     }
 }
-
-@Serializable
-data class SomeResponse(val id: String)
