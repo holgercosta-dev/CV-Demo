@@ -23,13 +23,21 @@ class MockEngine(
         val callContext = callContext()
         val route = Route.fromPath(data.url.encodedPath)
         val responseByteArray: ByteArray = when (route) {
-            Route.GET_CV_DATA -> {
-                mockDataHandler.getCVData
+            Route.GET_USER_PROFILE -> {
+                mockDataHandler.getUserProfile
             }
-
-            Route.GET_USER_PROFILE -> TODO()
-            Route.UNKNOWN -> TODO()
-            else -> TODO()
+            Route.GET_SHOPPING_CART -> {
+                mockDataHandler.getShoppingCart
+            }
+            Route.POST_VALIDATE_CREDIT_CARD -> {
+                mockDataHandler.postValidateCreditCard
+            }
+            Route.POST_PURCHASE_ORDER -> {
+                mockDataHandler.postPurchaseOrder
+            }
+            Route.UNKNOWN -> {
+                mockDataHandler.getUserProfile
+            }
         }
 
         return HttpResponseData(

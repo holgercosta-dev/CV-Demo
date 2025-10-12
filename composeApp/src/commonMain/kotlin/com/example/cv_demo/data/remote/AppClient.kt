@@ -2,12 +2,53 @@ package com.example.cv_demo.data.remote
 
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.statement.HttpResponse
+import io.ktor.websocket.DefaultWebSocketSession
 
 /**
  * A low-level client interface for making HTTP requests.
  * Functions are suspending and return a Result, promoting safe concurrency and error handling.
  */
 interface AppClient {
+
+    /**
+     * Initiates a WebSocket session.
+     *
+     * This function establishes a real-time, two-way communication channel with a server endpoint.
+     * It's suitable for applications requiring continuous data exchange, such as live updates or chat features.
+     *
+     * Example usage:
+     * ```kotlin
+     * client.startWebsocketSession("/live-updates") {
+     *     // 'this' is a DefaultClientWebSocketSession
+     *     try {
+     *         for (frame in incoming) {
+     *             when (frame) {
+     *                 is Frame.Text -> {
+     *                     val receivedText = frame.readText()
+     *                     println("Received: $receivedText")
+     *                     // Send a response
+     *                     send(Frame.Text("Echo: $receivedText"))
+     *                 }
+     *                 // Handle other frame types (Binary, Close, etc.)
+     *             }
+     *         }
+     *     } catch (e: Exception) {
+     *         println("Error during WebSocket session: ${e.message}")
+     *     } finally {
+     *         println("WebSocket session closed.")
+     *     }
+     * }
+     * ```
+     *
+     * @param path The WebSocket endpoint path (e.g., "/ws/chat").
+     * @param block A suspending lambda with a [DefaultClientWebSocketSession] receiver. This block
+     *              defines the behavior for the active session, allowing you to send and receive frames.
+     *              The session remains active for the duration of this block's execution.
+     * @return A [Result] indicating the outcome of establishing the connection. It returns `Result.success(Unit)`
+     *         if the session was established and completed (or closed) without protocol errors during the handshake,
+     *         or `Result.failure(Exception)` if the connection could not be established. Note that exceptions
+     */
+    suspend fun startWebsocketSession(): DefaultWebSocketSession
     /**
      * Performs a GET request.
      * @param path The endpoint path (e.g., "/users").
