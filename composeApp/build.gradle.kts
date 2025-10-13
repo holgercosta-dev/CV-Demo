@@ -47,6 +47,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
+            implementation(libs.tomtom.sdk.maps.mapDisplay)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -89,6 +90,8 @@ kotlin {
     }
 }
 
+val tomtomApiKey: String by project
+
 android {
     namespace = "com.example.cv_demo"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -99,6 +102,9 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
     }
     packaging {
         resources {
@@ -113,6 +119,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    buildFeatures {
+        buildConfig = true
+    }
+    buildTypes.configureEach {
+        buildConfigField("String", "TOMTOM_API_KEY", "\"$tomtomApiKey\"")
     }
 }
 
@@ -136,4 +148,7 @@ compose.desktop {
 repositories {
     google()
     mavenCentral()
+    maven {
+        url = uri("https://repositories.tomtom.com/artifactory/maven")
+    }
 }
