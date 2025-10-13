@@ -2,7 +2,8 @@ package com.example.cv_demo.data.remote
 
 import com.example.cv_demo.data.remote.mock.MockWebsocketSession
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.websocket.webSocketSession
+import io.ktor.client.call.HttpClientCall
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -13,15 +14,17 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.websocket.DefaultWebSocketSession
 
 class AppClientImpl(
     private val httpClient: HttpClient,
 ) : AppClient {
 
-    override suspend fun startWebsocketSession(): DefaultWebSocketSession {
+    override suspend fun startWebsocketSession(): DefaultClientWebSocketSession {
         //httpClient.webSocketSession("/websocket")
-        return MockWebsocketSession()
+        return DefaultClientWebSocketSession(
+            call = HttpClientCall(httpClient),
+            delegate = MockWebsocketSession()
+        )
     }
 
     override suspend fun get(path: String, queryParams: Map<String, Any?>): Result<HttpResponse> {

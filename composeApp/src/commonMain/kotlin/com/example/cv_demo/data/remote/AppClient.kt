@@ -1,5 +1,6 @@
 package com.example.cv_demo.data.remote
 
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.statement.HttpResponse
 import io.ktor.websocket.DefaultWebSocketSession
@@ -48,7 +49,7 @@ interface AppClient {
      *         if the session was established and completed (or closed) without protocol errors during the handshake,
      *         or `Result.failure(Exception)` if the connection could not be established. Note that exceptions
      */
-    suspend fun startWebsocketSession(): DefaultWebSocketSession
+    suspend fun startWebsocketSession(): DefaultClientWebSocketSession
     /**
      * Performs a GET request.
      * @param path The endpoint path (e.g., "/users").
