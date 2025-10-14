@@ -8,39 +8,39 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.kotlinCocoapods)
+    //alias(libs.plugins.kotlinCocoapods)
 }
 
 kotlin {
-    cocoapods {
-        version = "1.0.0"
-        summary = "Some description for a Kotlin/Native module"
-        homepage = "Link to a Kotlin/Native module homepage"
-        ios.deploymentTarget = "14.0"
-        podfile = project.file("../iosApp/Podfile")
-
-        specRepos {
-            url("https://cdn.cocoapods.org")
-            url("https://github.com/tomtom-international/tomtom-sdk-cocoapods-specs.git")
-        }
-
-        framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-
-        pod("TomTomSDKMapDisplay") {
-            version = "0.70.0"
-        }
-
-        pod("TomTomSDKRoutePlannerOnline") {
-            version = "0.70.0"
-        }
-
-        pod("TomTomSDKRoutePlanner") {
-            version = "0.70.0"
-        }
-    }
+//    cocoapods {
+//        version = "1.0.0"
+//        summary = "Some description for a Kotlin/Native module"
+//        homepage = "Link to a Kotlin/Native module homepage"
+//        ios.deploymentTarget = "14.0"
+//        podfile = project.file("../iosApp/Podfile")
+//
+//        specRepos {
+//            url("https://cdn.cocoapods.org")
+//            url("https://github.com/tomtom-international/tomtom-sdk-cocoapods-specs.git")
+//        }
+//
+//        framework {
+//            baseName = "ComposeApp"
+//            isStatic = true
+//        }
+//
+//        pod("TomTomSDKMapDisplay") {
+//            version = "0.70.0"
+//        }
+//
+//        pod("TomTomSDKRoutePlannerOnline") {
+//            version = "0.70.0"
+//        }
+//
+//        pod("TomTomSDKRoutePlanner") {
+//            version = "0.70.0"
+//        }
+//    }
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -76,7 +76,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
-            implementation(libs.tomtom.sdk.maps.mapDisplay)
+            //implementation(libs.tomtom.sdk.maps.mapDisplay)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -120,7 +120,7 @@ kotlin {
     }
 }
 
-val tomtomApiKey: String by project
+//val tomtomApiKey: String by project
 
 android {
     namespace = "com.example.cv_demo"
@@ -132,9 +132,9 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-        ndk {
-            abiFilters += listOf("arm64-v8a", "x86_64")
-        }
+//        ndk {
+//            abiFilters += listOf("arm64-v8a", "x86_64")
+//        }
     }
     packaging {
         resources {
@@ -153,9 +153,9 @@ android {
     buildFeatures {
         buildConfig = true
     }
-    buildTypes.configureEach {
-        buildConfigField("String", "TOMTOM_API_KEY", "\"$tomtomApiKey\"")
-    }
+//    buildTypes.configureEach {
+//        buildConfigField("String", "TOMTOM_API_KEY", "\"$tomtomApiKey\"")
+//    }
 }
 
 dependencies {
@@ -178,7 +178,7 @@ compose.desktop {
 repositories {
     google()
     mavenCentral()
-    maven {
-        url = uri("https://repositories.tomtom.com/artifactory/maven")
-    }
+//    maven {
+//        url = uri("https://repositories.tomtom.com/artifactory/maven")
+//    }
 }
