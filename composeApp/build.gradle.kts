@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -9,15 +8,45 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.kotlinCocoapods)
 }
 
 kotlin {
+    cocoapods {
+        version = "1.0.0"
+        summary = "Some description for a Kotlin/Native module"
+        homepage = "Link to a Kotlin/Native module homepage"
+        ios.deploymentTarget = "14.0"
+        podfile = project.file("../iosApp/Podfile")
+
+        specRepos {
+            url("https://cdn.cocoapods.org")
+            url("https://github.com/tomtom-international/tomtom-sdk-cocoapods-specs.git")
+        }
+
+        framework {
+            baseName = "ComposeApp"
+            isStatic = true
+        }
+
+        pod("TomTomSDKMapDisplay") {
+            version = "0.70.0"
+        }
+
+        pod("TomTomSDKRoutePlannerOnline") {
+            version = "0.70.0"
+        }
+
+        pod("TomTomSDKRoutePlanner") {
+            version = "0.70.0"
+        }
+    }
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -27,20 +56,20 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm()
-    
+
     js {
         browser()
         binaries.executable()
     }
-    
+
 //    @OptIn(ExperimentalWasmDsl::class)
 //    wasmJs {
 //        browser()
 //        binaries.executable()
 //    }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
@@ -77,10 +106,11 @@ kotlin {
             iosX64Main.get().dependsOn(this)
             iosArm64Main.get().dependsOn(this)
             iosSimulatorArm64Main.get().dependsOn(this)
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
         }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
+
         jsMain.dependencies {
             implementation(libs.ktor.client.js)
         }
