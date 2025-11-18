@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.cv_demo.data.remote.AppClient
 import com.example.cv_demo.di.appModule
 import org.koin.android.ext.android.get
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 //import com.example.cv_demo.BuildConfig
 
@@ -18,19 +19,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         startKoin {
-//            androidContext(this@CvDemoApplication)
-//
-//            // Only log in debug builds
-//            if (BuildConfig.DEBUG) {
-//                androidLogger()
-//            }
+            //Todo: add application class
+            androidContext(this@MainActivity)
             modules(appModule)
         }
 
         setContent {
             App()
-            val appClient = get<AppClient>()
-            appClient.makeRequest()
         }
     }
 }
