@@ -23,8 +23,8 @@ class MockEngine(
         val callContext = callContext()
         val route = Route.fromPath(data.url.encodedPath)
         val responseByteArray: ByteArray = when (route) {
-            Route.GET_CV_DATA -> {
-                mockDataHandler.getCVData
+            Route.GET_PRODUCT_DETAILS -> {
+                mockDataHandler.getProductDetails
             }
 
             Route.GET_USER_PROFILE -> TODO()

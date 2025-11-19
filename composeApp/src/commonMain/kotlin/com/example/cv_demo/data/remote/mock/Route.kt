@@ -1,7 +1,7 @@
 package com.example.cv_demo.data.remote.mock
 
 enum class Route(val path: String) {
-    GET_CV_DATA("/cv/data"),
+    GET_PRODUCT_DETAILS("/product/details"),
     GET_USER_PROFILE("/user/profile"),
     UNKNOWN("");
 
