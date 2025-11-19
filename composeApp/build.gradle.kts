@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -51,7 +50,6 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            //implementation(compose.material)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -62,7 +60,9 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.koin.core)
+            implementation(libs.koin.compose.viewmodel)
             implementation(compose.materialIconsExtended)
+            implementation(libs.androidx.lifecycle.viewmodel)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
