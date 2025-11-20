@@ -13,6 +13,7 @@ import io.ktor.http.headersOf
 import io.ktor.util.InternalAPI
 import io.ktor.util.date.GMTDate
 import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.delay
 
 class MockEngine(
     override val config: HttpClientEngineConfig = HttpClientEngineConfig(),
@@ -29,9 +30,8 @@ class MockEngine(
 
             Route.GET_USER_PROFILE -> TODO()
             Route.UNKNOWN -> TODO()
-            else -> TODO()
         }
-
+        delay(5000)
         return HttpResponseData(
             statusCode = HttpStatusCode.OK,
             requestTime = GMTDate(),

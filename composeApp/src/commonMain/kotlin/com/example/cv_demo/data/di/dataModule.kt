@@ -10,6 +10,7 @@ import com.example.cv_demo.data.repository.ProductDetailsRepositoryImpl
 import com.example.cv_demo.domain.repository.product.ProductDetailsRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.HttpClientEngineConfig
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -22,6 +23,7 @@ val dataModule = module {
 
     factory { Json { ignoreUnknownKeys = true; prettyPrint = true; isLenient = true } }
     factoryOf(::MockDataHandler)
+    factory { HttpClientEngineConfig() }
     factoryOf(::MockEngine) { bind<HttpClientEngine>() }
 
     single {
