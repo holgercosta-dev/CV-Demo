@@ -1,5 +1,6 @@
 package com.example.cv_demo.domain.use_case.product
 
+import com.example.cv_demo.domain.model.product.ProductDetails
 import com.example.cv_demo.domain.repository.product.ProductDetailsRepository
 
 typealias GetProductDetailsType = suspend () -> ProductDetails
