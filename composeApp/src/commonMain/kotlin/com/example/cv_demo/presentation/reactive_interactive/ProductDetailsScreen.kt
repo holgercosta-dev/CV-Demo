@@ -25,7 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -52,14 +52,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.cv_demo.domain.model.product.ProductDetails
+import com.example.cv_demo.presentation.core.state.UiState
+import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsState
+import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
+val darkBackgroundColor = Color(0xFF1E2429)
+val textColor = Color.White
+val selectedColor = Color(0xFF00A3FF)
 @Composable
-fun ProductDetailsScreen() {
-    val darkBackgroundColor = Color(0xFF1E2429)
-    val textColor = Color.White
-    val selectedColor = Color(0xFF00A3FF)
-
+fun ProductDetailsScreen(
+    viewModel: ProductDetailsViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     MaterialTheme(
         colorScheme = darkColorScheme(
             background = darkBackgroundColor,
@@ -70,33 +78,48 @@ fun ProductDetailsScreen() {
             onPrimary = textColor
         )
     ) {
-        Scaffold(
-            topBar = { TopAppBarContent() },
-            containerColor = darkBackgroundColor
-        ) { paddingValues ->
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 32.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Left side: Customization options
-                Box(modifier = Modifier.weight(1f)) {
-                    CustomizationOptions()
-                }
+        Content(uiState)
+    }
+}
 
-                Spacer(modifier = Modifier.width(32.dp))
+@Composable
+private fun Content(uiState: ProductDetailsState) {
+    Scaffold(
+        topBar = { TopAppBarContent() },
+        containerColor = darkBackgroundColor
+    ) { paddingValues ->
+        when (uiState.productDetails) {
+            is UiState.Error -> {
+                Text("Error: ${uiState.productDetails.message}")
+            }
+            UiState.Idle -> Unit
+            UiState.Loading -> {
+                CircularProgressIndicator()
+            }
+            is UiState.Success<ProductDetails> -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 32.dp, vertical = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Left side: Customization options
+                    Box(modifier = Modifier.weight(1f)) {
+                        CustomizationOptions()
+                    }
 
-                // Right side: Product image and summary
-                Box(modifier = Modifier.weight(1f)) {
-                    ProductSummary()
+                    Spacer(modifier = Modifier.width(32.dp))
+
+                    // Right side: Product image and summary
+                    Box(modifier = Modifier.weight(1f)) {
+                        ProductSummary()
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun TopAppBarContent() {
