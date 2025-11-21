@@ -4,7 +4,7 @@ data class ProductVariant(
     val id: String,
     val name: String,
     val price: List<Price>,
-    val finishOption: Any,
-    val colorOptions: Any,
-    val storageOptions: Any
+    val finishOption: ProductOption,
+    val colorOptions: ProductOption,
+    val storageOptions: ProductOption,
 )

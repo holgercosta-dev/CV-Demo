@@ -55,11 +55,11 @@ class MockDataHandler(
                     colorOptions = ProductOptionDto(
                         label = "Color",
                         items = listOf(
-                            "#828282",
-                            "#243452",
-                            "#F2F2F2",
-                            "#181819"
-                        ) // Hex codes for colors
+                            "828282",
+                            "243452",
+                            "F2F2F2",
+                            "181819"
+                        )
                     ),
                     storageOptions = ProductOptionDto(
                         label = "Storage",
@@ -102,11 +102,11 @@ class MockDataHandler(
                     colorOptions = ProductOptionDto(
                         label = "Color",
                         items = listOf(
-                            "#828282",
-                            "#243452",
-                            "#F2F2F2",
-                            "#181819"
-                        ) // Hex codes for colors
+                            "828282",
+                            "243452",
+                            "F2F2F2",
+                            "181819"
+                        )
                     ),
                     storageOptions = ProductOptionDto(
                         label = "Storage",
