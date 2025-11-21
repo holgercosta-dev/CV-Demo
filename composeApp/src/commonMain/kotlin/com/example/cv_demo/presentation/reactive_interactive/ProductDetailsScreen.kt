@@ -42,9 +42,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,9 +51,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cv_demo.presentation.core.state.UiState
+import com.example.cv_demo.presentation.reactive_interactive.state.ColorOption
+import com.example.cv_demo.presentation.reactive_interactive.state.FinishOption
+import com.example.cv_demo.presentation.reactive_interactive.state.OnInteractionEvent
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsState
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsViewModel
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductUiDetails
+import com.example.cv_demo.presentation.reactive_interactive.state.StorageOption
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -78,12 +79,15 @@ fun ProductDetailsScreen(
             onPrimary = textColor
         )
     ) {
-        Content(uiState)
+        Content(uiState, viewModel::onInteractionEvent)
     }
 }
 
 @Composable
-private fun Content(uiState: ProductDetailsState) {
+private fun Content(
+    uiState: ProductDetailsState,
+    onInteractionEvent: (OnInteractionEvent) -> Unit = {},
+) {
     Scaffold(
         topBar = { TopAppBarContent() },
         containerColor = darkBackgroundColor
@@ -97,6 +101,13 @@ private fun Content(uiState: ProductDetailsState) {
                 CircularProgressIndicator()
             }
             is UiState.Success<ProductUiDetails> -> {
+                val selectedVariant = uiState.productDetails.data.productVariants.find {
+                    it.id == uiState.selectedProduct?.selectedVariantId
+                }
+                if (selectedVariant == null) {
+                    Text("Error: Variant not found")
+                    return@Scaffold
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
@@ -106,7 +117,13 @@ private fun Content(uiState: ProductDetailsState) {
                 ) {
                     // Left side: Customization options
                     Box(modifier = Modifier.weight(1f)) {
-                        CustomizationOptions()
+                        CustomizationOptions(
+                            selectedColorOption = uiState.selectedProduct?.selectedColor ?: ColorOption.FF243452,
+                            selectedVariant.colorOptions,
+                            selectedVariant.finishOption,
+                            selectedVariant.storageOptions,
+                            onInteractionEvent,
+                        )
                     }
 
                     Spacer(modifier = Modifier.width(32.dp))
@@ -152,12 +169,13 @@ fun TopAppBarContent() {
 }
 
 @Composable
-fun CustomizationOptions() {
-    var selectedFinish by remember { mutableStateOf("Matte") }
-    var selectedColor by remember { mutableStateOf("Black") }
-    var selectedStorage by remember { mutableStateOf("128GB") }
-    var selectedDisplay by remember { mutableStateOf("Standard") }
-
+fun CustomizationOptions(
+    selectedColorOption: ColorOption,
+    colorOptions: List<ColorOption>,
+    finishOptions: List<FinishOption>,
+    storageOptions: List<StorageOption>,
+    onInteractionEvent: (OnInteractionEvent) -> Unit,
+) {
     LazyColumn(
         modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -173,12 +191,11 @@ fun CustomizationOptions() {
         item {
             OptionGroup(
                 title = "Choose your finish",
-                options = listOf("Matte", "Glossy"),
-                selectedOption = selectedFinish,
-                onOptionSelected = { selectedFinish = it }
+                options = finishOptions,
+                selectedOption = FinishOption.MATTE,
             ) { option, isSelected ->
                 OutlinedButton(
-                    onClick = { selectedFinish = option },
+                    onClick = { onInteractionEvent(OnInteractionEvent.ChooseFinish)},
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else Color.Transparent,
@@ -186,7 +203,7 @@ fun CustomizationOptions() {
                     ),
                     border = BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray)
                 ) {
-                    Text(option)
+                    Text(option.name)
                 }
             }
         }
@@ -194,29 +211,20 @@ fun CustomizationOptions() {
         item {
             OptionGroup(
                 title = "Choose your color",
-                options = listOf("Black", "White", "Blue", "Red", "Green"),
-                selectedOption = selectedColor,
-                onOptionSelected = { selectedColor = it }
+                options = colorOptions,
+                selectedOption = selectedColorOption,
             ) { option, isSelected ->
-                val color = when (option) {
-                    "Black" -> Color.Black
-                    "White" -> Color.White
-                    "Blue" -> Color.Blue
-                    "Red" -> Color.Red
-                    "Green" -> Color.Green
-                    else -> Color.Transparent
-                }
                 Box(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(color)
+                        .background(Color(option.getARGB()))
                         .border(
                             2.dp,
                             if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
                             CircleShape
                         )
-                        .clickable { selectedColor = option }
+                        .clickable { onInteractionEvent(OnInteractionEvent.ChooseColor(option)) }
                 )
             }
         }
@@ -224,24 +232,25 @@ fun CustomizationOptions() {
         item {
             OptionGroupVertical(
                 title = "Choose your storage",
-                options = listOf("128GB", "256GB", "512GB"),
-                selectedOption = selectedStorage,
-                onOptionSelected = { selectedStorage = it }
+                options = storageOptions,
+                selectedOption = StorageOption.GB_128,
+                onOptionSelected = { onInteractionEvent(OnInteractionEvent.ChooseStorage) }
             )
         }
 
-        item {
-            OptionGroupVertical(
-                title = "Choose your display",
-                options = listOf("Standard", "Pro"),
-                descriptions = mapOf(
-                    "Standard" to "6.1-inch Super Retina XDR display",
-                    "Pro" to "6.7-inch Super Retina XDR display with ProMotion"
-                ),
-                selectedOption = selectedDisplay,
-                onOptionSelected = { selectedDisplay = it }
-            )
-        }
+//        item {
+//            OptionGroupVertical(
+//                title = "Choose your display",
+//                options = listOf("Standard", "Pro"),
+//                //Todo
+////                descriptions = mapOf(
+////                    "Standard" to "6.1-inch Super Retina XDR display",
+////                    "Pro" to "6.7-inch Super Retina XDR display with ProMotion"
+////                ),
+//                selectedOption = ,
+//                onOptionSelected = { selectedDisplay = it }
+//            )
+//        }
     }
 }
 
@@ -250,7 +259,6 @@ fun <T> OptionGroup(
     title: String,
     options: List<T>,
     selectedOption: T,
-    onOptionSelected: (T) -> Unit,
     content: @Composable (T, Boolean) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -264,12 +272,11 @@ fun <T> OptionGroup(
 }
 
 @Composable
-fun OptionGroupVertical(
+fun <T> OptionGroupVertical(
     title: String,
-    options: List<String>,
-    descriptions: Map<String, String>? = null,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
+    options: List<T>,
+    selectedOption: T,
+    onOptionSelected: (T) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(title, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
@@ -288,14 +295,14 @@ fun OptionGroupVertical(
                     colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                if (descriptions != null) {
-                    Column {
-                        Text(option, fontWeight = FontWeight.SemiBold)
-                        Text(descriptions[option] ?: "", color = Color.Gray, fontSize = 14.sp)
-                    }
-                } else {
-                    Text(option)
-                }
+//                if (descriptions != null) {
+//                    Column {
+//                        Text(option, fontWeight = FontWeight.SemiBold)
+//                        Text(descriptions[option] ?: "", color = Color.Gray, fontSize = 14.sp)
+//                    }
+//                } else {
+//                    Text(option)
+//                }
             }
         }
     }

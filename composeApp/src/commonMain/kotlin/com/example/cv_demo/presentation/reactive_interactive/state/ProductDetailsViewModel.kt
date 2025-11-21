@@ -23,7 +23,7 @@ data class SelectedProductInnerState(
     val selectedFinish: String? = null,
     val selectedColor: ColorOption? = null,
     val selectedStorage: String? = null,
-    val selectedVariant: String? = null,
+    val selectedVariantId: String? = null,
 )
 
 sealed interface OnInteractionEvent {
@@ -37,7 +37,7 @@ class ProductDetailsViewModel(
     private val getProductDetails: GetProductDetailsType,
 ) : ViewModel() {
 
-    private lateinit var selectedProductInnerState: SelectedProductInnerState
+    private var selectedProductInnerState = SelectedProductInnerState()
 
     private val userInteractionEvent = MutableSharedFlow<Unit>()
     private val productDetailsFlow = channelFlow<UiState<ProductUiDetails>> {
@@ -45,10 +45,10 @@ class ProductDetailsViewModel(
         val mappedData = productDetails.mapToUi()
         //set default values for inner state
         selectedProductInnerState = SelectedProductInnerState(
-            selectedFinish = TODO(),
-            selectedColor = TODO(),
-            selectedStorage = TODO(),
-            selectedVariant = TODO()
+            selectedFinish = mappedData.defaultFinish,
+            selectedColor = mappedData.defaultColor,
+            selectedStorage = mappedData.defaultStorage,
+            selectedVariantId = mappedData.defaultVariant?.id
         )
         send(UiState.Success(mappedData))
     }.onStart { emit(UiState.Loading) }
@@ -59,7 +59,7 @@ class ProductDetailsViewModel(
     ) { productDetailsState, _ ->
         ProductDetailsState(
             productDetails = productDetailsState,
-            selectedProduct = selectedProductInnerState
+            selectedProduct = selectedProductInnerState,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -68,11 +68,11 @@ class ProductDetailsViewModel(
     )
 
     fun onInteractionEvent(event: OnInteractionEvent) {
-        when (event) {
+        selectedProductInnerState = when (event) {
             is OnInteractionEvent.ChooseColor -> selectedProductInnerState.copy(selectedColor = event.color)
             OnInteractionEvent.ChooseFinish -> selectedProductInnerState.copy(selectedFinish = "")
             OnInteractionEvent.ChooseStorage -> selectedProductInnerState.copy(selectedStorage = "")
-            OnInteractionEvent.ChooseVariant -> selectedProductInnerState.copy(selectedVariant = "")
+            OnInteractionEvent.ChooseVariant -> selectedProductInnerState.copy(selectedVariantId = "")
         }
         userInteractionEvent.send(Unit)
     }

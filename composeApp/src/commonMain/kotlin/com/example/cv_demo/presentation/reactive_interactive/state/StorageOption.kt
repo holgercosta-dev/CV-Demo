@@ -7,7 +7,7 @@ enum class StorageOption(val value: String) {
     GB_1("1TB");
     companion object {
         fun from(value: String): StorageOption? {
-            return StorageOption.entries.find { it.name == value }
+            return StorageOption.entries.find { it.value == value }
         }
     }
 }

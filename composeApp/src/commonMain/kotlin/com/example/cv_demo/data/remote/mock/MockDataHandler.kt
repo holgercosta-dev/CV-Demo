@@ -46,10 +46,8 @@ class MockDataHandler(
                     finishOption = ProductOptionDto(
                         label = "Finish",
                         items = listOf(
-                            "Natural Titanium",
-                            "Blue Titanium",
-                            "White Titanium",
-                            "Black Titanium"
+                            "MATTE",
+                            "GLOSSY"
                         )
                     ),
                     colorOptions = ProductOptionDto(
@@ -93,10 +91,8 @@ class MockDataHandler(
                     finishOption = ProductOptionDto(
                         label = "Finish",
                         items = listOf(
-                            "Natural Titanium",
-                            "Blue Titanium",
-                            "White Titanium",
-                            "Black Titanium"
+                            "MATTE",
+                            "GLOSSY"
                         )
                     ),
                     colorOptions = ProductOptionDto(
