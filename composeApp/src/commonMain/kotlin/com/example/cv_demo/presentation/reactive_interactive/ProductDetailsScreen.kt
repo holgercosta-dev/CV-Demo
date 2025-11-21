@@ -53,11 +53,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cv_demo.presentation.core.state.UiState
 import com.example.cv_demo.presentation.reactive_interactive.state.ColorOption
 import com.example.cv_demo.presentation.reactive_interactive.state.FinishOption
+import com.example.cv_demo.presentation.reactive_interactive.state.OptionGroupVertical
 import com.example.cv_demo.presentation.reactive_interactive.state.OnInteractionEvent
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsState
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsViewModel
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductUiDetails
 import com.example.cv_demo.presentation.reactive_interactive.state.StorageOption
+import com.example.cv_demo.presentation.reactive_interactive.state.VariantOption
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -102,7 +104,7 @@ private fun Content(
             }
             is UiState.Success<ProductUiDetails> -> {
                 val selectedVariant = uiState.productDetails.data.productVariants.find {
-                    it.id == uiState.selectedProduct?.selectedVariantId
+                    it.name == uiState.selectedProduct?.selectedVariant?.label
                 }
                 if (selectedVariant == null) {
                     Text("Error: Variant not found")
@@ -121,9 +123,11 @@ private fun Content(
                             selectedColorOption = uiState.selectedProduct?.selectedColor ?: ColorOption.FF243452,
                             selectedFinishOption = uiState.selectedProduct?.selectedFinish ?: FinishOption.MATTE,
                             selectedStorageOption = uiState.selectedProduct?.selectedStorage ?: StorageOption.GB_128,
+                            selectedVariant = VariantOption.from(selectedVariant.name) ?: VariantOption.STANDARD,
                             colorOptions = selectedVariant.colorOptions,
                             finishOptions = selectedVariant.finishOption,
                             storageOptions = selectedVariant.storageOptions,
+                            variants = uiState.productDetails.data.productVariants.mapNotNull { it.variantOption },
                             onInteractionEvent = onInteractionEvent,
                         )
                     }
@@ -175,9 +179,11 @@ fun CustomizationOptions(
     selectedColorOption: ColorOption,
     selectedFinishOption: FinishOption,
     selectedStorageOption: StorageOption,
+    selectedVariant: VariantOption,
     colorOptions: List<ColorOption>,
     finishOptions: List<FinishOption>,
     storageOptions: List<StorageOption>,
+    variants: List<VariantOption>,
     onInteractionEvent: (OnInteractionEvent) -> Unit,
 ) {
     LazyColumn(
@@ -242,19 +248,14 @@ fun CustomizationOptions(
             )
         }
 
-//        item {
-//            OptionGroupVertical(
-//                title = "Choose your display",
-//                options = listOf("Standard", "Pro"),
-//                //Todo
-////                descriptions = mapOf(
-////                    "Standard" to "6.1-inch Super Retina XDR display",
-////                    "Pro" to "6.7-inch Super Retina XDR display with ProMotion"
-////                ),
-//                selectedOption = ,
-//                onOptionSelected = { selectedDisplay = it }
-//            )
-//        }
+        item {
+            OptionGroupVertical(
+                title = "Choose your display",
+                options = variants,
+                selectedOption = selectedVariant,
+                onOptionSelected = { onInteractionEvent(OnInteractionEvent.ChooseVariant(it)) }
+            )
+        }
     }
 }
 
@@ -276,7 +277,7 @@ fun <T> OptionGroup(
 }
 
 @Composable
-fun <T> OptionGroupVertical(
+fun <T : OptionGroupVertical> OptionGroupVertical(
     title: String,
     options: List<T>,
     selectedOption: T,
@@ -299,14 +300,12 @@ fun <T> OptionGroupVertical(
                     colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-//                if (descriptions != null) {
-//                    Column {
-//                        Text(option, fontWeight = FontWeight.SemiBold)
-//                        Text(descriptions[option] ?: "", color = Color.Gray, fontSize = 14.sp)
-//                    }
-//                } else {
-//                    Text(option)
-//                }
+                option.description?.let {
+                    Column {
+                        Text(option.label, fontWeight = FontWeight.SemiBold)
+                        Text(it, color = Color.Gray, fontSize = 14.sp)
+                    }
+                } ?: Text(option.label)
             }
         }
     }

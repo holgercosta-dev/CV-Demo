@@ -26,6 +26,7 @@ data class ProductUiVariant(
     val finishOption: List<FinishOption>,
     val colorOptions: List<ColorOption>,
     val storageOptions: List<StorageOption>,
+    val variantOption: VariantOption?,
 )
 
 fun ProductVariant.mapToUi(): ProductUiVariant {
@@ -33,6 +34,7 @@ fun ProductVariant.mapToUi(): ProductUiVariant {
         id = this.id,
         name = this.name,
         price = this.price,
+        variantOption = VariantOption.from(this.name),
         finishOption = this.finishOption.items.mapNotNull {
             FinishOption.from(it)
         },
