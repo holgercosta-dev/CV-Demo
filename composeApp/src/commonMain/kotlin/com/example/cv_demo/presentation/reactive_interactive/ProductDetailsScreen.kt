@@ -53,10 +53,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.cv_demo.domain.model.product.ProductDetails
 import com.example.cv_demo.presentation.core.state.UiState
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsState
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsViewModel
+import com.example.cv_demo.presentation.reactive_interactive.state.ProductUiDetails
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -96,7 +96,7 @@ private fun Content(uiState: ProductDetailsState) {
             UiState.Loading -> {
                 CircularProgressIndicator()
             }
-            is UiState.Success<ProductDetails> -> {
+            is UiState.Success<ProductUiDetails> -> {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
