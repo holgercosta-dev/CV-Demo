@@ -119,10 +119,12 @@ private fun Content(
                     Box(modifier = Modifier.weight(1f)) {
                         CustomizationOptions(
                             selectedColorOption = uiState.selectedProduct?.selectedColor ?: ColorOption.FF243452,
-                            selectedVariant.colorOptions,
-                            selectedVariant.finishOption,
-                            selectedVariant.storageOptions,
-                            onInteractionEvent,
+                            selectedFinishOption = uiState.selectedProduct?.selectedFinish ?: FinishOption.MATTE,
+                            selectedStorageOption = uiState.selectedProduct?.selectedStorage ?: StorageOption.GB_128,
+                            colorOptions = selectedVariant.colorOptions,
+                            finishOptions = selectedVariant.finishOption,
+                            storageOptions = selectedVariant.storageOptions,
+                            onInteractionEvent = onInteractionEvent,
                         )
                     }
 
@@ -171,6 +173,8 @@ fun TopAppBarContent() {
 @Composable
 fun CustomizationOptions(
     selectedColorOption: ColorOption,
+    selectedFinishOption: FinishOption,
+    selectedStorageOption: StorageOption,
     colorOptions: List<ColorOption>,
     finishOptions: List<FinishOption>,
     storageOptions: List<StorageOption>,
@@ -192,10 +196,10 @@ fun CustomizationOptions(
             OptionGroup(
                 title = "Choose your finish",
                 options = finishOptions,
-                selectedOption = FinishOption.MATTE,
+                selectedOption = selectedFinishOption,
             ) { option, isSelected ->
                 OutlinedButton(
-                    onClick = { onInteractionEvent(OnInteractionEvent.ChooseFinish)},
+                    onClick = { onInteractionEvent(OnInteractionEvent.ChooseFinish(option))},
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else Color.Transparent,
@@ -233,8 +237,8 @@ fun CustomizationOptions(
             OptionGroupVertical(
                 title = "Choose your storage",
                 options = storageOptions,
-                selectedOption = StorageOption.GB_128,
-                onOptionSelected = { onInteractionEvent(OnInteractionEvent.ChooseStorage) }
+                selectedOption = selectedStorageOption,
+                onOptionSelected = { onInteractionEvent(OnInteractionEvent.ChooseStorage(it)) }
             )
         }
 

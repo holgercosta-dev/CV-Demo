@@ -20,17 +20,17 @@ data class ProductDetailsState(
 )
 
 data class SelectedProductInnerState(
-    val selectedFinish: String? = null,
+    val selectedFinish: FinishOption? = null,
     val selectedColor: ColorOption? = null,
-    val selectedStorage: String? = null,
+    val selectedStorage: StorageOption? = null,
     val selectedVariantId: String? = null,
 )
 
 sealed interface OnInteractionEvent {
-    data object ChooseFinish : OnInteractionEvent
+    data class ChooseFinish(val finish: FinishOption) : OnInteractionEvent
     data class ChooseColor(val color: ColorOption) : OnInteractionEvent
-    data object ChooseStorage : OnInteractionEvent
-    data object ChooseVariant : OnInteractionEvent
+    data class ChooseStorage(val storage: StorageOption) : OnInteractionEvent
+    data class ChooseVariant(val variant: ProductUiVariant) : OnInteractionEvent
 }
 
 class ProductDetailsViewModel(
@@ -70,9 +70,9 @@ class ProductDetailsViewModel(
     fun onInteractionEvent(event: OnInteractionEvent) {
         selectedProductInnerState = when (event) {
             is OnInteractionEvent.ChooseColor -> selectedProductInnerState.copy(selectedColor = event.color)
-            OnInteractionEvent.ChooseFinish -> selectedProductInnerState.copy(selectedFinish = "")
-            OnInteractionEvent.ChooseStorage -> selectedProductInnerState.copy(selectedStorage = "")
-            OnInteractionEvent.ChooseVariant -> selectedProductInnerState.copy(selectedVariantId = "")
+            is OnInteractionEvent.ChooseFinish -> selectedProductInnerState.copy(selectedFinish = event.finish)
+            is OnInteractionEvent.ChooseStorage -> selectedProductInnerState.copy(selectedStorage = event.storage)
+            is OnInteractionEvent.ChooseVariant -> selectedProductInnerState.copy(selectedVariantId = event.variant.id)
         }
         userInteractionEvent.send(Unit)
     }

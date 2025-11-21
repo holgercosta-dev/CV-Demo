@@ -10,9 +10,9 @@ data class ProductUiDetails(
     val description: String,
     val imageUrl: String,
     val productVariants: List<ProductUiVariant>,
-    val defaultFinish: String?,
+    val defaultFinish: FinishOption?,
     val defaultColor: ColorOption?,
-    val defaultStorage: String?,
+    val defaultStorage: StorageOption?,
     val defaultVariant: ProductUiVariant?,
     val colorOptions: List<ColorOption> = emptyList(),
     val finishOptions: List<FinishOption> = emptyList(),
@@ -54,8 +54,8 @@ fun ProductDetails.mapToUi(): ProductUiDetails {
         imageUrl = this.imageUrl,
         productVariants = mappedVariants,
         defaultVariant = mappedVariants.firstOrNull(),
-        defaultFinish = productVariants.firstOrNull()?.finishOption?.items?.firstOrNull(),
+        defaultFinish = FinishOption.from(productVariants.firstOrNull()?.finishOption?.items?.firstOrNull().orEmpty()),
         defaultColor = ColorOption.from(productVariants.firstOrNull()?.colorOptions?.items?.firstOrNull().orEmpty()),
-        defaultStorage = productVariants.firstOrNull()?.storageOptions?.items?.firstOrNull(),
+        defaultStorage = StorageOption.from(productVariants.firstOrNull()?.storageOptions?.items?.firstOrNull().orEmpty()),
     )
 }
