@@ -59,6 +59,7 @@ import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetail
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsViewModel
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductUiDetails
 import com.example.cv_demo.presentation.reactive_interactive.state.StorageOption
+import com.example.cv_demo.presentation.reactive_interactive.state.SummaryState
 import com.example.cv_demo.presentation.reactive_interactive.state.VariantOption
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -66,6 +67,8 @@ import org.koin.compose.viewmodel.koinViewModel
 val darkBackgroundColor = Color(0xFF1E2429)
 val textColor = Color.White
 val selectedColor = Color(0xFF00A3FF)
+
+//Todo: PLATFORM_ADAPTIVE Fix screen to adapt to all platforms, right now desktop is supported.
 @Composable
 fun ProductDetailsScreen(
     viewModel: ProductDetailsViewModel = koinViewModel()
@@ -81,7 +84,7 @@ fun ProductDetailsScreen(
             onPrimary = textColor
         )
     ) {
-        Content(uiState, viewModel::onInteractionEvent)
+        Content(uiState, viewModel::onInteractionEvent, viewModel::addToCart)
     }
 }
 
@@ -89,6 +92,7 @@ fun ProductDetailsScreen(
 private fun Content(
     uiState: ProductDetailsState,
     onInteractionEvent: (OnInteractionEvent) -> Unit = {},
+    onAddToCart: () -> Unit = {},
 ) {
     Scaffold(
         topBar = { TopAppBarContent() },
@@ -136,7 +140,7 @@ private fun Content(
 
                     // Right side: Product image and summary
                     Box(modifier = Modifier.weight(1f)) {
-                        ProductSummary()
+                        ProductSummary(uiState.summary, onAddToCart)
                     }
                 }
             }
@@ -313,7 +317,7 @@ fun <T : OptionGroupVertical> OptionGroupVertical(
 
 
 @Composable
-fun ProductSummary() {
+fun ProductSummary(summary: SummaryState, onAddToCart: () -> Unit) {
     Column {
         // Placeholder for product image
         Box(
@@ -329,31 +333,32 @@ fun ProductSummary() {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text("Phone Model X", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text("Black, 128GB, Standard", color = Color.Gray)
+        Text(summary.description.orEmpty(), color = Color.Gray)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color.Gray)
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Subtotal", color = Color.Gray)
-            Text("$999")
+            Text(summary.subTotal.orEmpty())
         }
+
         Spacer(modifier = Modifier.height(8.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Shipping", color = Color.Gray)
-            Text("Free")
+            Text(summary.shippingCosts ?: "Free")
         }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color.Gray)
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Total", fontWeight = FontWeight.Bold)
-            Text("$999", fontWeight = FontWeight.Bold)
+            Text(summary.total.orEmpty(), fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = {},
+            onClick = onAddToCart,
             modifier = Modifier.fillMaxWidth().height(50.dp),
             shape = RoundedCornerShape(8.dp)
         ) {

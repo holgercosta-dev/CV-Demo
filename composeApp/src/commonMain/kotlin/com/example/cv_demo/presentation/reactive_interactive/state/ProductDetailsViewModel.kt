@@ -17,6 +17,14 @@ import kotlinx.coroutines.flow.stateIn
 data class ProductDetailsState(
     val productDetails: UiState<ProductUiDetails> = UiState.Idle,
     val selectedProduct: SelectedProductInnerState? = null,
+    val summary: SummaryState = SummaryState(),
+)
+
+data class SummaryState(
+    val shippingCosts: String? = null,
+    val subTotal: String? = null,
+    val total: String? = null,
+    val description: String? = null,
 )
 
 data class SelectedProductInnerState(
