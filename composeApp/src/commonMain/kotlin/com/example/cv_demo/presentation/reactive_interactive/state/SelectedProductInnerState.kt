@@ -5,4 +5,12 @@ data class SelectedProductInnerState(
     val selectedColor: ColorOption? = null,
     val selectedStorage: StorageOption? = null,
     val selectedVariant: VariantOption? = null,
-)
+    val lastSelectedVariant: VariantOption? = null,
+) {
+    fun hasVariantChanged(): Boolean {
+        //if null, then initial variant is still valid
+        return lastSelectedVariant?.let {
+            selectedVariant != it
+        } ?: false
+    }
+}

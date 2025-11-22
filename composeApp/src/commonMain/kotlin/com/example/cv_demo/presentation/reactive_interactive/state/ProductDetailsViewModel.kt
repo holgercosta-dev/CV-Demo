@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 
 
@@ -36,24 +37,34 @@ class ProductDetailsViewModel(
         )
         //initial values for summary
         summaryState = summaryState.copy(
-            shippingCosts = TODO(),
-            subTotal = TODO(),
-            total = TODO(),
-            description = TODO()
+//            shippingCosts = TODO(),
+//            subTotal = TODO(),
+//            total = TODO(),
+//            description = TODO()
         )
         send(UiState.Success(mappedData))
-    }.onStart { emit(UiState.Loading) }
+    }
+        .onStart { emit(UiState.Loading) }
+        .shareIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            replay = 1,
+        )
 
     private val onInteractionEventFlow: Flow<Unit> = userInteractionEvent.map {
-        val productDetailsSuccessFlow = productDetailsFlow.filterIsInstance<UiState.Success<ProductUiDetails>>()
+        //At this point we know that the product details have been loaded
+        val productDetailsSuccessFlow =
+            productDetailsFlow.filterIsInstance<UiState.Success<ProductUiDetails>>()
         productDetailsSuccessFlow.collect { success ->
             val selectedProduct = selectedProductInnerState
             val summary = summaryState
             val productDetails = success.data
 
-
-
-            selectedProductInnerState = selectedProductInnerState.copy()
+            if (selectedProduct.hasVariantChanged()) {
+                //reset selected values to first option in list and update variant only
+                selectedProductInnerState = selectedProductInnerState.copy()
+            }
+            //Get pricing info from api call
             summaryState = summaryState.copy()
         }
     }.onStart { emit(Unit) }
@@ -78,7 +89,10 @@ class ProductDetailsViewModel(
             is OnInteractionEvent.ChooseColor -> selectedProductInnerState.copy(selectedColor = event.color)
             is OnInteractionEvent.ChooseFinish -> selectedProductInnerState.copy(selectedFinish = event.finish)
             is OnInteractionEvent.ChooseStorage -> selectedProductInnerState.copy(selectedStorage = event.storage)
-            is OnInteractionEvent.ChooseVariant -> selectedProductInnerState.copy(selectedVariant = event.variant)
+            is OnInteractionEvent.ChooseVariant -> selectedProductInnerState.copy(
+                lastSelectedVariant = selectedProductInnerState.selectedVariant,
+                selectedVariant = event.variant,
+            )
         }
         userInteractionEvent.send(Unit)
     }
