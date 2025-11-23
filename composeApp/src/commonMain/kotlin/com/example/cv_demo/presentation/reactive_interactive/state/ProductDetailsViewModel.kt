@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.cv_demo.domain.use_case.product.GetProductDetailsType
 import com.example.cv_demo.presentation.core.extension.send
 import com.example.cv_demo.presentation.core.state.UiState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,9 +13,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.stateIn
 
 
@@ -51,32 +56,37 @@ class ProductDetailsViewModel(
             replay = 1,
         )
 
-    private val onInteractionEventFlow: Flow<Unit> = userInteractionEvent.map {
-        //At this point we know that the product details have been loaded
-        val productDetailsSuccessFlow =
-            productDetailsFlow.filterIsInstance<UiState.Success<ProductUiDetails>>()
-        productDetailsSuccessFlow.collect { success ->
-            val selectedProduct = selectedProductInnerState
-            val variantDetails = success.data.productVariants.find {
-                it.variantOption == selectedProduct.selectedVariant
-            }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val onInteractionEventFlow: Flow<Unit> = userInteractionEvent.flatMapLatest {
+        flow {
+            //At this point we know that the product details have been loaded
+            val productDetailsSuccessFlow =
+                productDetailsFlow.filterIsInstance<UiState.Success<ProductUiDetails>>()
+            productDetailsSuccessFlow.collect { success ->
+                val selectedProduct = selectedProductInnerState
+                val variantDetails = success.data.productVariants.find {
+                    it.variantOption == selectedProduct.selectedVariant
+                }
 
-            if (selectedProduct.hasVariantChanged()) {
-                //reset selected values to first option in list and update variant only
-                selectedProductInnerState = selectedProductInnerState.copy(
-                    selectedFinish = variantDetails?.finishOption?.firstOrNull(),
-                    selectedColor = variantDetails?.colorOptions?.firstOrNull(),
-                    selectedStorage = variantDetails?.storageOptions?.firstOrNull(),
+                if (selectedProduct.hasVariantChanged()) {
+                    //reset selected values to first option in list and update variant only
+                    selectedProductInnerState = selectedProductInnerState.copy(
+                        selectedFinish = variantDetails?.finishOption?.firstOrNull(),
+                        selectedColor = variantDetails?.colorOptions?.firstOrNull(),
+                        selectedStorage = variantDetails?.storageOptions?.firstOrNull(),
+                    )
+                }
+                //Get pricing info from api call
+                summaryState = summaryState.copy(
+                    shippingCosts = "todo",
+                    subTotal = variantDetails?.price?.firstOrNull()?.value.toString(),
+                    total = null,//should be tax % times sub total(or price)
+                    description = null//combine all selected options into description string
                 )
+                emit(Unit)
             }
-            //Get pricing info from api call
-            summaryState = summaryState.copy(
-                shippingCosts = "todo",
-                subTotal = variantDetails?.price?.firstOrNull()?.value.toString(),
-                total = null,//should be tax % times sub total(or price)
-                description = null//combine all selected options into description string
-            )
         }
+
     }.onStart { emit(Unit) }
 
     val uiState: StateFlow<ProductDetailsState> = combine(
