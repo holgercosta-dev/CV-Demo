@@ -33,7 +33,7 @@ class ProductDetailsViewModel(
             selectedFinish = mappedData.defaultFinish,
             selectedColor = mappedData.defaultColor,
             selectedStorage = mappedData.defaultStorage,
-            selectedVariant = VariantOption.from(mappedData.defaultVariant?.name.orEmpty())
+            selectedVariant = VariantOption.from(mappedData.defaultVariant?.name.orEmpty()),
         )
         //initial values for summary
         summaryState = summaryState.copy(
@@ -57,15 +57,25 @@ class ProductDetailsViewModel(
             productDetailsFlow.filterIsInstance<UiState.Success<ProductUiDetails>>()
         productDetailsSuccessFlow.collect { success ->
             val selectedProduct = selectedProductInnerState
-            val summary = summaryState
-            val productDetails = success.data
+            val variantDetails = success.data.productVariants.find {
+                it.variantOption == selectedProduct.selectedVariant
+            }
 
             if (selectedProduct.hasVariantChanged()) {
                 //reset selected values to first option in list and update variant only
-                selectedProductInnerState = selectedProductInnerState.copy()
+                selectedProductInnerState = selectedProductInnerState.copy(
+                    selectedFinish = variantDetails?.finishOption?.firstOrNull(),
+                    selectedColor = variantDetails?.colorOptions?.firstOrNull(),
+                    selectedStorage = variantDetails?.storageOptions?.firstOrNull(),
+                )
             }
             //Get pricing info from api call
-            summaryState = summaryState.copy()
+            summaryState = summaryState.copy(
+                shippingCosts = "todo",
+                subTotal = variantDetails?.price?.firstOrNull()?.value.toString(),
+                total = null,//should be tax % times sub total(or price)
+                description = null//combine all selected options into description string
+            )
         }
     }.onStart { emit(Unit) }
 
