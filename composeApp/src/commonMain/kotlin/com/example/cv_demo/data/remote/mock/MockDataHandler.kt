@@ -23,23 +23,23 @@ class MockDataHandler(
                     name = "Standard",
                     price = listOf(
                         PriceDto(
-                            value = 1099.0,
+                            value = 1099.00,
                             currency = "USD"
                         ),
                         PriceDto(
-                            value = 1199.0,
+                            value = 1199.00,
                             currency = "EUR"
                         ),
                         PriceDto(
-                            value = 1000.0,
+                            value = 1000.00,
                             currency = "GBP"
                         ),
                         PriceDto(
-                            value = 999.0,
+                            value = 999.00,
                             currency = "CHF"
                         ),
                         PriceDto(
-                            value = 1999.0,
+                            value = 1999.00,
                             currency = "AUD",
                         )
                     ),
@@ -68,23 +68,23 @@ class MockDataHandler(
                     name = "Pro",
                     price = listOf(
                         PriceDto(
-                            value = 1099.0,
+                            value = 1099.00,
                             currency = "USD"
                         ),
                         PriceDto(
-                            value = 1199.0,
+                            value = 1199.00,
                             currency = "EUR"
                         ),
                         PriceDto(
-                            value = 1000.0,
+                            value = 1000.00,
                             currency = "GBP"
                         ),
                         PriceDto(
-                            value = 999.0,
+                            value = 999.00,
                             currency = "CHF"
                         ),
                         PriceDto(
-                            value = 1999.0,
+                            value = 1999.00,
                             currency = "AUD",
                         )
                     ),

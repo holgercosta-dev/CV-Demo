@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.stateIn
 
 class ProductDetailsViewModel(
     private val getProductDetails: GetProductDetailsType,
+    private val summaryMapper: SummaryMapper,
 ) : ViewModel() {
     private var selectedProductInnerState = SelectedProductInnerState()
     private var summaryState = SummaryState()
@@ -38,14 +39,19 @@ class ProductDetailsViewModel(
             selectedFinish = mappedData.defaultFinish,
             selectedColor = mappedData.defaultColor,
             selectedStorage = mappedData.defaultStorage,
-            selectedVariant = VariantOption.from(mappedData.defaultVariant?.name.orEmpty()),
+            selectedVariant = mappedData.defaultVariant?.variantOption,
         )
         //initial values for summary
+        val mappedSummary = summaryMapper.getMappedSummaryState(
+            shippingCosts = null,
+            subTotal = mappedData.defaultVariant?.price?.firstOrNull()?.value,
+            selectedProductInnerState = selectedProductInnerState,
+        )
         summaryState = summaryState.copy(
-//            shippingCosts = TODO(),
-//            subTotal = TODO(),
-//            total = TODO(),
-//            description = TODO()
+            shippingCosts = mappedSummary.shippingCosts,
+            subTotal = mappedSummary.subTotal,
+            total = mappedSummary.total,
+            description = mappedSummary.description,
         )
         send(UiState.Success(mappedData))
     }
@@ -71,17 +77,24 @@ class ProductDetailsViewModel(
                 if (selectedProduct.hasVariantChanged()) {
                     //reset selected values to first option in list and update variant only
                     selectedProductInnerState = selectedProductInnerState.copy(
+                        //reset last selected variant
+                        lastSelectedVariant = null,
                         selectedFinish = variantDetails?.finishOption?.firstOrNull(),
                         selectedColor = variantDetails?.colorOptions?.firstOrNull(),
                         selectedStorage = variantDetails?.storageOptions?.firstOrNull(),
                     )
                 }
                 //Get pricing info from api call
+                val mappedSummary = summaryMapper.getMappedSummaryState(
+                    shippingCosts = null,
+                    subTotal = variantDetails?.price?.firstOrNull()?.value,
+                    selectedProductInnerState = selectedProductInnerState,
+                )
                 summaryState = summaryState.copy(
-                    shippingCosts = "todo",
-                    subTotal = variantDetails?.price?.firstOrNull()?.value.toString(),
-                    total = null,//should be tax % times sub total(or price)
-                    description = null//combine all selected options into description string
+                    shippingCosts = mappedSummary.shippingCosts,
+                    subTotal = mappedSummary.subTotal,
+                    total = mappedSummary.total,
+                    description = mappedSummary.description
                 )
                 emit(Unit)
             }
