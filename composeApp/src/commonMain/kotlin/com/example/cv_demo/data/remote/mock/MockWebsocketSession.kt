@@ -1,6 +1,6 @@
 package com.example.cv_demo.data.remote.mock
 
-import io.ktor.util.InternalAPI
+import io.ktor.utils.io.InternalAPI
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.DefaultWebSocketSession
 import io.ktor.websocket.Frame
