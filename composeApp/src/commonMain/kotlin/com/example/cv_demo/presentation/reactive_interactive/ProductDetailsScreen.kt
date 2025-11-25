@@ -40,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -58,6 +59,8 @@ import com.example.cv_demo.presentation.reactive_interactive.state.OnInteraction
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsState
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductDetailsViewModel
 import com.example.cv_demo.presentation.reactive_interactive.state.ProductUiDetails
+import com.example.cv_demo.presentation.reactive_interactive.state.ProductUiVariant
+import com.example.cv_demo.presentation.reactive_interactive.state.SelectedProductInnerState
 import com.example.cv_demo.presentation.reactive_interactive.state.StorageOption
 import com.example.cv_demo.presentation.reactive_interactive.state.SummaryState
 import com.example.cv_demo.presentation.reactive_interactive.state.VariantOption
@@ -370,5 +373,100 @@ fun ProductSummary(summary: SummaryState, onAddToCart: () -> Unit) {
 @Preview(widthDp = 1280, heightDp = 800)
 @Composable
 fun ProductDetailsScreenPreview() {
-    ProductDetailsScreen()
+    val variant = ProductUiVariant(
+        id = "v1",
+        name = "Standard",
+        price = emptyList(),
+        finishOption = FinishOption.entries.toList(),
+        colorOptions = ColorOption.entries.toList(),
+        storageOptions = StorageOption.entries.toList(),
+        variantOption = VariantOption.STANDARD
+    )
+    val uiState = ProductDetailsState(
+        productDetails = UiState.Success(
+            ProductUiDetails(
+                id = "1",
+                name = "Phone Model X",
+                description = "The best phone ever",
+                imageUrl = "",
+                productVariants = listOf(variant),
+                defaultFinish = FinishOption.MATTE,
+                defaultColor = ColorOption.FF243452,
+                defaultStorage = StorageOption.GB_128,
+                defaultVariant = variant
+            )
+        ),
+        selectedProduct = SelectedProductInnerState(
+            selectedVariant = VariantOption.STANDARD,
+            selectedFinish = FinishOption.MATTE,
+            selectedColor = ColorOption.FF243452,
+            selectedStorage = StorageOption.GB_128
+        ),
+        summary = SummaryState(
+            description = "Black, 128GB, Standard",
+            subTotal = "$999",
+            shippingCosts = "Free",
+            total = "$999"
+        )
+    )
+
+    MaterialTheme(
+        colorScheme = darkColorScheme(
+            background = darkBackgroundColor,
+            onBackground = textColor,
+            surface = darkBackgroundColor,
+            onSurface = textColor,
+            primary = selectedColor,
+            onPrimary = textColor
+        )
+    ) {
+        Content(uiState)
+    }
+}
+
+@Preview(widthDp = 1280, heightDp = 800)
+@Composable
+fun ProductDetailsScreenLightPreview() {
+    val variant = ProductUiVariant(
+        id = "v1",
+        name = "Standard",
+        price = emptyList(),
+        finishOption = FinishOption.entries.toList(),
+        colorOptions = ColorOption.entries.toList(),
+        storageOptions = StorageOption.entries.toList(),
+        variantOption = VariantOption.STANDARD
+    )
+    val uiState = ProductDetailsState(
+        productDetails = UiState.Success(
+            ProductUiDetails(
+                id = "1",
+                name = "Phone Model X",
+                description = "The best phone ever",
+                imageUrl = "",
+                productVariants = listOf(variant),
+                defaultFinish = FinishOption.MATTE,
+                defaultColor = ColorOption.FF243452,
+                defaultStorage = StorageOption.GB_128,
+                defaultVariant = variant
+            )
+        ),
+        selectedProduct = SelectedProductInnerState(
+            selectedVariant = VariantOption.STANDARD,
+            selectedFinish = FinishOption.MATTE,
+            selectedColor = ColorOption.FF243452,
+            selectedStorage = StorageOption.GB_128
+        ),
+        summary = SummaryState(
+            description = "Black, 128GB, Standard",
+            subTotal = "$999",
+            shippingCosts = "Free",
+            total = "$999"
+        )
+    )
+
+    MaterialTheme(
+        colorScheme = lightColorScheme()
+    ) {
+        Content(uiState)
+    }
 }
