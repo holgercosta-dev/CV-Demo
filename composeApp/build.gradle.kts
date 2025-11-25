@@ -1,8 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -71,7 +69,8 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose.viewmodel)
             implementation(compose.materialIconsExtended)
-            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.androidx.navigation3.ui)
+            implementation(libs.androidx.navigation3.material3.adaptive)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
