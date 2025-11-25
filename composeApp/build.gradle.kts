@@ -1,5 +1,7 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -35,17 +37,17 @@ kotlin {
     }
     
     jvm()
-    
+
     js {
         browser()
         binaries.executable()
     }
-    
-//    @OptIn(ExperimentalWasmDsl::class)
-//    wasmJs {
-//        browser()
-//        binaries.executable()
-//    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        binaries.executable()
+    }
     
     sourceSets {
         androidMain.dependencies {
@@ -79,22 +81,12 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.ktor.client.okhttp)
         }
-        val iosMain by creating {
-            dependsOn(commonMain.get())
-            // Link iosX64, iosArm64, and iosSimulatorArm64 to this source set
-            iosX64Main.get().dependsOn(this)
-            iosArm64Main.get().dependsOn(this)
-            iosSimulatorArm64Main.get().dependsOn(this)
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
-        jsMain.dependencies {
+        webMain.dependencies {
             implementation(libs.ktor.client.js)
         }
-//        wasmJsMain.dependencies {
-//            implementation(libs.ktor.client.js)
-//        }
     }
 }
 
