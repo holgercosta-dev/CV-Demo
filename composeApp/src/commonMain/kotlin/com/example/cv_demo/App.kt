@@ -42,4 +42,10 @@ sealed interface Route {
     data object Home : Route
     @Serializable
     data object ProductDetailsScreen : Route
+
+    companion object {
+        fun getDestinations() = listOf(
+            ProductDetailsScreen
+        )
+    }
 }
